@@ -5,8 +5,10 @@ import argparse
 from PIL import Image
 import torch
 import torchvision.transforms as tf
+import cv2
 
 from utils.flow_viz import flow_to_image
+from utils.frame_utils import writeFlow
 from utils.utils import InputPadder
 from flowdiffuser import FlowDiffuser
 
@@ -35,8 +37,8 @@ model.to(device)
 model.eval()
 
 with torch.no_grad():
-    img0 = Image.open('sketch1.png').convert('RGB')
-    img1 = Image.open('sketch3.png').convert('RGB')
+    img0 = Image.open('frame1.png').convert('RGB')
+    img1 = Image.open('frame2.png').convert('RGB')
     img0 = transform(img0)
     img1 = transform(img1)
     img0 = img0.to(device)
@@ -48,8 +50,9 @@ with torch.no_grad():
     img0, img1 = padder.pad(img0, img1)
 
     flow_low, flow_pr = model(img0, img1, iters=32, test_mode=True)
-    flow = padder.unpad(flow_pr[0]).cpu()
-    flow_img = flow_to_image(flow)
-    flow_img.save('test.png')
-
+    flow = flow_pr.squeeze(0)
+    flow = padder.unpad(flow)
+    flow = flow.permute(1, 2, 0).cpu().numpy()
+    flow = flow_to_image(flow)
+    cv2.imwrite('test.png', flow[:,:,::-1])
 
