@@ -130,6 +130,38 @@ def validate_sintel(model, iters=32):
 
     return results
 
+@torch.no_grad()
+def validate_animerun(model, iters=32):
+    """ Peform validation using the AnimeRun (test) split """
+    model.eval()
+    results = {}
+    val_dataset = datasets.AnimeRun(split='test')
+    epe_list = []
+
+    for val_id in range(len(val_dataset)):
+        image1, image2, flow_gt = val_dataset[val_id]
+        image1 = image1[None].cuda()
+        image2 = image2[None].cuda()
+
+        padder = InputPadder(image1.shape)
+        image1, image2 = padder.pad(image1, image2)
+
+        flow_low, flow_pr = model(image1, image2, iters=iters, test_mode = True)
+        flow = padder.unpad(flow_pr[0]).cpu()
+
+        epe = torch.sum((flow - flow_gt)**2, dim=0).sqrt()
+        epe_list.append(epe.view(-1).numpy())
+    
+    epe_all = np.concatenate(epe_list)
+    epe = np.mean(epe_all)
+    px1 = np.mean(epe_all<1)
+    px3 = np.mean(epe_all<3)
+    px5 = np.mean(epe_all<5)
+
+    print("Validation EPE: %f, 1px: %f, 3px: %f, 5px: %f" % (epe, px1, px3, px5))
+    results = {'AnimeRun-epe': np.mean(epe_list)}
+    return results
+
 
 @torch.no_grad()
 def validate_kitti(model, iters=24):
