@@ -118,7 +118,7 @@ class MpiSintel(FlowDataset):
                 self.flow_list += sorted(glob(osp.join(flow_root, scene, '*.flo')))
 
 class AnimeRun(FlowDataset):
-    def __init__(self, aug_params=None, split='train', root='/home/soda/Dataset/AnimeRun_v2'):
+    def __init__(self, aug_params=None, split='train', root='/home/1/uu02611/lab/dataset/AnimeRun_v2'):
         super(AnimeRun, self).__init__(aug_params)
         flow_root = osp.join(root, split, 'Flow')
         image_root = osp.join(root, split, 'contour')
