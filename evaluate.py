@@ -139,7 +139,7 @@ def validate_animerun(model, iters=32):
     epe_list = []
 
     for val_id in range(len(val_dataset)):
-        image1, image2, flow_gt = val_dataset[val_id]
+        image1, image2, flow_gt, _ = val_dataset[val_id]
         image1 = image1[None].cuda()
         image2 = image2[None].cuda()
 
@@ -159,7 +159,7 @@ def validate_animerun(model, iters=32):
     px5 = np.mean(epe_all<5)
 
     print("Validation EPE: %f, 1px: %f, 3px: %f, 5px: %f" % (epe, px1, px3, px5))
-    results = {'AnimeRun-epe': np.mean(epe_list)}
+    results = {'AnimeRun-epe': epe}
     return results
 
 

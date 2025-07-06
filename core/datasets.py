@@ -123,17 +123,13 @@ class AnimeRun(FlowDataset):
         flow_root = osp.join(root, split, 'Flow')
         image_root = osp.join(root, split, 'contour')
 
-        if split == 'test':
-            self.is_test = True
-
         for scene in os.listdir(image_root):
             image_list = sorted(glob(osp.join(image_root, scene, '*.png')))
             for i in range(len(image_list) - 1):
                 self.image_list += [ [image_list[i], image_list[i+1]] ]
                 self.extra_info += [ (scene, i)]
 
-            if split != 'test':
-                self.flow_list += sorted(glob(osp.join(flow_root, scene, 'forward', '*.flo')))
+            self.flow_list += sorted(glob(osp.join(flow_root, scene, 'forward', '*.flo')))
 
 
 class FlyingChairs(FlowDataset):
