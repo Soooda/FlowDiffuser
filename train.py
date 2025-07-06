@@ -21,7 +21,7 @@ from flowdiffuser import FlowDiffuser
 
 from torch.utils.tensorboard import SummaryWriter
 
-from torch.cuda.amp import GradScaler
+from torch.amp import GradScaler
 
 
 # exclude extremly large displacements
@@ -137,7 +137,7 @@ def train(args):
     optimizer, scheduler = fetch_optimizer(args, model)
 
     total_steps = 0
-    scaler = GradScaler(enabled=args.mixed_precision)
+    scaler = GradScaler('cuda', enabled=args.mixed_precision)
     logger = Logger(model, scheduler)
 
     VAL_FREQ = 5000

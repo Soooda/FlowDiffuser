@@ -10,7 +10,7 @@ from fd_encoder import twins_svt_large, twins_svt_small_context
 from fd_decoder import UpSampleMask8, UpSampleMask4, TransformerModule, SKUpdate, SinusoidalPositionEmbeddings, SKUpdateDFM
 from fd_corr import CorrBlock_FD_Sp4
 
-autocast = torch.cuda.amp.autocast
+autocast = torch.amp.autocast
 
 
 def exists(x):
@@ -182,7 +182,7 @@ class FlowDiffuser(nn.Module):
             coords1 = coords1.detach()
             corr = self.corr_fn(coords1)
             flow = coords1 - coords0
-            with autocast(enabled=self.args.mixed_precision):
+            with autocast('cuda', enabled=self.args.mixed_precision):
                 dfm_params = [t_ii, self.update, ii, 0]  
                 net, delta_flow = self.update_dfm(net, inp8, corr, flow, itr, first_step=first_step, dfm_params=dfm_params)  
                 up_mask = self.um8(net)
@@ -268,7 +268,7 @@ class FlowDiffuser(nn.Module):
             corr = self.corr_fn(coords1)
             flow = coords1 - coords0
 
-            with autocast(enabled=self.args.mixed_precision):
+            with autocast('cuda', enabled=self.args.mixed_precision):
                 itr = ii
                 first_step = False if itr != 0 else True
                 dfm_params = [t_ii, self.update, ii, 0]
@@ -298,7 +298,7 @@ class FlowDiffuser(nn.Module):
         image1 = 2 * (image1 / 255.0) - 1.0
         image2 = 2 * (image2 / 255.0) - 1.0
 
-        with autocast(enabled=self.args.mixed_precision):
+        with autocast('cuda', enabled=self.args.mixed_precision):
             fmap = self.fnet(torch.cat([image1, image2], dim=0))
             inp = self.cnet(image1)
 
@@ -355,7 +355,7 @@ class FlowDiffuser(nn.Module):
                     corr = corr_fn4(coords1 - coords1_rd + self.rad)
 
                     flow = coords1 - coords0
-                    with autocast(enabled=self.args.mixed_precision):
+                    with autocast('cuda', enabled=self.args.mixed_precision):
                         net, delta_flow = self.update(net, inp4, corr, flow, itr, sp4=True)
                         up_mask = self.um4(net)
 
