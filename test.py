@@ -29,13 +29,14 @@ parser.add_argument('--mixed_precision', action='store_true', help='use mixed pr
 parser.add_argument('--alternate_corr', action='store_true', help='use efficent correlation implementation')
 args = parser.parse_args()
 model = torch.nn.DataParallel(FlowDiffuser(args))
-model.load_state_dict(torch.load('weights/FlowDiffuser-things.pth'))
+# model.load_state_dict(torch.load('weights/FlowDiffuser-things.pth'))
+model.load_state_dict(torch.load('weights/fd-animerun.pth'))
 model.to(device)
 model.eval()
 
 with torch.no_grad():
-    img0 = cv2.imread('frame1.png')
-    img1 = cv2.imread('frame2.png')
+    img0 = cv2.imread('Image0115.png')
+    img1 = cv2.imread('Image0116.png')
     img0 = to_tensor(img0)
     img1 = to_tensor(img1)
 
