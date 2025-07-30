@@ -131,6 +131,19 @@ class AnimeRun(FlowDataset):
 
             self.flow_list += sorted(glob(osp.join(flow_root, scene, 'forward', '*.flo')))
 
+class AnimeRunBackward(FlowDataset):
+    def __init__(self, aug_params=None, split='train', root='/home/1/uu02611/lab/dataset/AnimeRun_v2'):
+        super(AnimeRun, self).__init__(aug_params)
+        flow_root = osp.join(root, split, 'Flow')
+        image_root = osp.join(root, split, 'contour')
+
+        for scene in os.listdir(image_root):
+            image_list = sorted(glob(osp.join(image_root, scene, '*.png')))
+            for i in range(len(image_list) - 1, 0, -1):
+                self.image_list += [ [image_list[i], image_list[i-1]] ]
+                self.extra_info += [ (scene, i)]
+
+            self.flow_list += sorted(glob(osp.join(flow_root, scene, 'backward', '*.flo')), reverse=True)
 
 class FlyingChairs(FlowDataset):
     def __init__(self, aug_params=None, split='train', root='datasets/FlyingChairs_release/data'):
@@ -244,6 +257,10 @@ def fetch_dataloader(args, TRAIN_DS='C+T+K+S+H'):
     elif args.stage == 'animerun':
         aug_params = {'crop_size': args.image_size, 'min_scale': -0.2, 'max_scale': 0.6, 'do_flip': True}
         train_dataset = AnimeRun(aug_params=aug_params)
+
+    elif args.stage == 'animerun_backward':
+        aug_params = {'crop_size': args.image_size, 'min_scale': -0.2, 'max_scale': 0.6, 'do_flip': True}
+        train_dataset = AnimeRunBackward(aug_params=aug_params)
 
     train_loader = data.DataLoader(train_dataset, batch_size=args.batch_size, 
         pin_memory=False, shuffle=True, num_workers=4, drop_last=True)
